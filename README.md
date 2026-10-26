@@ -1,169 +1,50 @@
-# 🏗️ RFP Intelligence Console
-### AI-Powered Pipeline Management System | Built for a ₹1,370Cr Real Estate Conglomerate
+# Bid Pipeline Console
 
-![Status](https://img.shields.io/badge/Status-Live%20in%20Production-brightgreen)
-![AI](https://img.shields.io/badge/AI-Claude%20(Anthropic)-orange)
-![Dashboard](https://img.shields.io/badge/Dashboard-Power%20BI-yellow)
-![Impact](https://img.shields.io/badge/Pipeline%20Scaled-₹400Cr%20→%20₹750Cr-blue)
+**One screen for a regional director to see every live tender — value, stage, deadline, revision, bid/no-bid call — and a status report that writes itself.**
 
----
+**▶ Live demo: [yashkasana1996.github.io/bid-pipeline-console](https://yashkasana1996.github.io/bid-pipeline-console/)** (fictional data — add, edit and drag RFPs freely; it all stays in your browser)
 
-## 🔍 Business Problem
+![Status](https://img.shields.io/badge/status-live%20demo-1f7a52) ![Stack](https://img.shields.io/badge/stack-single%20HTML%20file-1b2f4d) ![Offline](https://img.shields.io/badge/works-offline-b8892b) ![Data](https://img.shields.io/badge/data-fictional-8a5a00)
 
-one of India's leading Design & Build firms (₹1,370Cr+ revenue, 2,500+ projects across 60+ cities) serving clients including **Microsoft, Google, Amazon, Accenture, SBI, Coca-Cola, ZEISS, and Schindler** — had no centralised, real-time visibility into its RFP pipeline.
-
-The City Director was managing a growing portfolio of live deal opportunities across **7 cities** through fragmented spreadsheets, email chains, and manual daily reports. This created:
-
-- ❌ No real-time deal status — required calling multiple teams for updates
-- ❌ No automated eligibility scoring — RFPs assessed manually, causing delays
-- ❌ No regional segmentation — 7 cities tracked in one flat list
-- ❌ 2–3 hours daily wasted on manual report compilation
+![Dashboard](docs/dashboard.png)
 
 ---
 
-## 💡 Solution Built
+## The problem
 
-An **AI-powered operating console** — a single-window command centre for the City Director replacing all manual pipeline reporting with real-time intelligence.
+A design-and-build firm's regional office runs dozens of tenders at once across several cities. The data exists — but it lives in estimators' spreadsheets, email threads and people's heads. So every morning and evening someone phones around, rebuilds a tracker by hand and types a status report for the director. Deadlines slip through, revisions pile up unnoticed, and no one can say what the pipeline is actually worth today.
 
-### Core Features
+## What the console does
 
-| Feature | What It Does |
+| View | What you get |
 |---|---|
-| 🗺️ **Live RFP Dashboard** | Real-time pipeline with deal stage, client, value, and probability |
-| 📍 **Regional Segmentation** | City-wise breakdown: Mumbai, Pune, Gujarat, NCR, Hyderabad, Bengaluru, Chennai |
-| 🤖 **AI Eligibility Scoring** | Claude AI scores each RFP against company capability profile — instant bid/no-bid |
-| 📊 **Deal Stage Monitoring** | Client-wise tracking from RFP receipt → bid → negotiation → closure |
-| 📰 **Daily Intelligence Report** | Auto-generated executive brief delivered every morning |
-| 🚨 **Bottleneck Flagging** | Identifies deals stalled beyond threshold — surfaces for director action |
-| 🔗 **Contracts Team Integration** | Live sync — no double-entry, no lag |
+| **Dashboard** | Live RFPs, open and probability-weighted pipeline (₹ Cr), what's due in 7 days, win rate; due-date table with totals; pipeline by stage; an automatic *Needs attention* list (overdue estimates, submissions with no response, revisions at R3+) |
+| **Region filter** | Every number, table and report recalculates per city in one click |
+| **RFP tracker** | Sortable register with revision (R0–R5), area, ₹/sq ft, win %, owner and a totals row; click any row to edit |
+| **Stage board** | Kanban from *Received* → *Estimating* → *Submitted* → *Negotiation* → *Won*; drag a card to move it |
+| **Bid / no-bid** | Transparent weighted scorecard (fit, relationship, margin, time, capacity, terms risk) → **Bid / Conditional / No-bid** with the weak spots named |
+| **Daily report** | Morning (9:30) and evening (18:00) reports generated from the data — copy, or open as an email draft |
+| **Data** | Export / import JSON to move between machines; nothing is sent anywhere |
 
----
-
-## 📈 Measured Business Impact
-
-| Metric | Before | After |
+| Stage board | Bid / no-bid scorecard | Auto report |
 |---|---|---|
-| Pipeline visibility | Fragmented, 24hr lag | Real-time, single dashboard |
-| RFP eligibility assessment | Manual, 4–6 hours per RFP | **Automated, instant** |
-| Active pipeline value | ₹400 Crore | **₹750 Crore (+87.5% in 2 weeks)** |
-| Daily report prep time | 2–3 hours manually | **Fully automated** |
-| Pipeline efficiency | Baseline | **+30–40% improvement** |
-| Simultaneous deals tracked | ~15–20 | **50+ across 7 cities** |
+| ![Board](docs/board.png) | ![Score](docs/score.png) | ![Report](docs/report.png) |
+
+## Why it's built this way
+
+- **Shaped around how the director already thinks** — regions, ₹ Cr, revisions, "what's due this week" — not around a generic CRM. That's what made the original get used every day.
+- **Zero install, zero IT ticket.** One HTML file that runs offline on any laptop; data persists in the browser and exports to JSON.
+- **Rules you can explain.** Scoring and alerts are plain, visible logic, so the director can challenge any recommendation.
+
+## Background
+
+I built the original version in my role supporting a City Director at a design-and-build firm, where it replaced the full-day manual effort of compiling pipeline reports. This public version is a clean rebuild with invented companies and numbers — no client data.
+
+## Run locally
+
+Download `index.html` and open it in any browser. That's it.
 
 ---
 
-## 🛠️ Tech Stack
-
-```
-Claude AI (Anthropic)     — RFP analysis, eligibility scoring, report generation
-Power BI                  — Live dashboards, regional maps, deal-stage funnels
-MS Excel (Advanced)       — Structured data input, formula logic, data pipeline
-Automation Workflows      — Auto-report generation, scheduled data refresh
-Power BI Connectors       — Integration with contracts team data sources
-```
-
----
-
-## 🏛️ System Architecture
-
-```
-┌─────────────────────────────────────┐
-│  RFP Data Input (Contracts Team)    │
-└────────────────┬────────────────────┘
-                 ↓
-┌─────────────────────────────────────┐
-│  Data Processing Layer              │
-│  Excel + Power BI Connectors        │
-└────────────────┬────────────────────┘
-                 ↓
-┌─────────────────────────────────────┐
-│  Claude AI Engine (Anthropic)       │
-│  ├── RFP Eligibility Scoring        │
-│  ├── Bid Priority Ranking           │
-│  ├── Risk Identification            │
-│  └── Daily Intelligence Report Gen  │
-└────────────────┬────────────────────┘
-                 ↓
-┌─────────────────────────────────────┐
-│  Power BI Dashboard (Director View) │
-│  ├── Live Pipeline — All Cities     │
-│  ├── Regional Breakdown             │
-│  ├── Deal Stage Funnel              │
-│  ├── Client Portfolio View          │
-│  └── Bottleneck Alert Panel         │
-└────────────────┬────────────────────┘
-                 ↓
-┌─────────────────────────────────────┐
-│  Auto Daily Brief → City Director  │
-│  (WhatsApp / Email / Dashboard)    │
-└─────────────────────────────────────┘
-```
-
----
-
-## 🤖 AI Implementation — Claude Prompt Chains
-
-### 1. RFP Eligibility Scoring
-Each RFP is submitted to Claude with:
-- ANJ Group capability profile (project types, city presence, team capacity, past wins)
-- RFP requirements (scope, timeline, client, value, special conditions)
-- Historical bid outcome data for similar project types
-
-**Claude returns:**
-- Eligibility score (0–100)
-- Bid recommendation (Bid / No-Bid / Conditional)
-- Key risks identified
-- Suggested bid positioning
-
-### 2. Daily Intelligence Report Prompt
-Every morning, a structured prompt pulls live dashboard data and generates a 1-page executive brief:
-- Top 5 priority deals requiring director attention today
-- Deals at risk (stalled or approaching deadline)
-- New RFPs received in last 24 hours
-- Pipeline value movement vs previous day
-- Recommended actions
-
----
-
-## 🧠 Key Problem-Solving Learnings
-
-> **"The biggest problem wasn't data — it was visibility."**
-The contracts team had all the data. It was siloed. A single director-facing view was the highest-leverage intervention.
-
-> **"AI works best when it replaces a specific task, not a vague one."**
-Eligibility scoring had a defined input (RFP document) and defined output (score + recommendation). Claude performs this reliably at scale.
-
-> **"Adoption requires matching the user's mental model."**
-The first version was technically capable but unused — it didn't match how the director thought about deals. Rebuilding the layout around his existing workflow drove immediate adoption.
-
----
-
-## 📁 Repository Structure
-
-```
-anj-rfp-intelligence-console/
-├── README.md
-├── docs/
-│   ├── architecture-diagram.png
-│   ├── dashboard-overview.png
-│   └── sample-daily-report.pdf      ← anonymised
-├── prompts/
-│   ├── eligibility-scoring.txt
-│   ├── daily-intelligence-report.txt
-│   └── bid-strategy-generator.txt
-├── templates/
-│   ├── rfp-input-template.xlsx
-│   └── pipeline-tracker-master.xlsx
-└── powerbi/
-    └── setup-guide.md
-```
-
----
-
-## 👤 Builder
-
-**Yashwant Kumar Gurjar** — Strategy & AI Operations | Founder's Office | Digital Transformation
-📞 +91 75970 92148 | 📧 yashkasana6991@gmail.com
-🔗 [LinkedIn](https://linkedin.com/in/yashwant-gurjar96)
-
-*All client names and deal values are anonymised. Screenshots show dummy data.*
+Built by **Yashwant Kumar Gurjar** — I design and build AI tools for operations-heavy businesses.
+[Portfolio](https://yashkasana1996.github.io) · [LinkedIn](https://linkedin.com/in/yashwant-gurjar96) · yashkasana6991@gmail.com

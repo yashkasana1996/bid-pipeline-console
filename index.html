@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bid Pipeline Console</title>
+<meta name="description" content="A director's single view of every live tender: pipeline value, stages, deadlines, revisions, bid/no-bid scoring and auto-written daily reports. Demo with fictional data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--ink:#17202d;--muted:#5f6878;--line:#e2e5ea;--navy:#1b2f4d;--gold:#b8892b;--gold-soft:#f6ecd6;
+  --s1:#3b6ea5;--s2:#6a5aa8;--s3:#b8892b;--s4:#1f7a52;--s5:#a33d3d;--ok:#1f7a52;--warn:#9a5b00;--bad:#a33d3d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f141c;--card:#161d28;--ink:#e6e9ee;--muted:#9aa3b2;--line:#263041;--navy:#9db9e3;--gold:#d9ad55;--gold-soft:#2b2516}}
+:root[data-theme="dark"]{--bg:#0f141c;--card:#161d28;--ink:#e6e9ee;--muted:#9aa3b2;--line:#263041;--navy:#9db9e3;--gold:#d9ad55;--gold-soft:#2b2516}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,system-ui,sans-serif}
+header{background:var(--card);border-bottom:3px solid var(--gold)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 16px}
+.top{display:flex;align-items:center;gap:14px;padding:14px 0;flex-wrap:wrap}
+.top h1{font-size:19px;margin:0;color:var(--navy)}
+.demo{font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;background:var(--gold-soft);color:var(--gold)}
+.sp{flex:1}
+nav{display:flex;gap:4px;overflow-x:auto}
+nav button{border:none;background:none;color:var(--muted);padding:12px 12px;font:inherit;font-weight:500;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--ink);border-bottom-color:var(--gold)}
+button.b,select,input,textarea{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:7px 11px}
+button.b{cursor:pointer}button.p{background:var(--navy);border-color:var(--navy);color:var(--card)}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:none;background:var(--card);color:var(--muted);padding:7px 12px;font:inherit;cursor:pointer}
+.seg button.on{background:var(--navy);color:var(--card)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.kpi .v{font-size:24px;font-weight:700;letter-spacing:-.01em}
+.kpi .l{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.kpi .s{font-size:12px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:14px}
+.card h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 10px}
+.cols{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
+@media (max-width:900px){.cols{grid-template-columns:1fr}}
+.cols>*{min-width:0}
+main{overflow-x:hidden}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);cursor:pointer;user-select:none}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr.tot td{font-weight:700;border-top:2px solid var(--line)}
+tbody tr:hover{background:var(--bg)}
+.st{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;color:#fff}
+.due{font-weight:600}.due.hot{color:var(--bad)}.due.warm{color:var(--warn)}
+.funnel .row{display:grid;grid-template-columns:120px 1fr 80px;gap:10px;align-items:center;margin:8px 0;font-size:13px}
+.funnel .track{height:14px;background:var(--bg);border-radius:7px;overflow:hidden}
+.funnel .fill{height:100%;border-radius:7px}
+.kan{display:grid;grid-template-columns:repeat(5,minmax(210px,1fr));gap:12px;overflow-x:auto;padding-bottom:6px}
+.col{background:var(--bg);border-radius:12px;padding:10px;min-height:200px}
+.col h3{font-size:12px;margin:0 0 8px;display:flex;justify-content:space-between}
+.tile{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:8px;padding:9px;margin-bottom:8px;font-size:12.5px;cursor:pointer}
+.tile b{display:block;font-size:13px}
+.tile .m{color:var(--muted)}
+pre.rep{white-space:pre-wrap;background:var(--bg);border-radius:10px;padding:14px;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;margin:0}
+.score{display:flex;gap:16px;align-items:center}
+.ring{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font-size:22px;font-weight:700}
+.crit{display:grid;grid-template-columns:1fr 110px 50px;gap:8px;align-items:center;margin:6px 0;font-size:13px}
+.crit input{padding:0}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);padding:18px;width:min(560px,94vw)}
+dialog::backdrop{background:rgba(10,15,25,.45)}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.form .full{grid-column:1/-1}
+.note{font-size:12px;color:var(--muted)}
+.pane{display:none}.pane.on{display:block}
+footer{color:var(--muted);font-size:12px;padding:24px 0}
+footer a{color:var(--navy)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap top">
+    <h1>Bid Pipeline Console</h1><span class="demo">DEMO · FICTIONAL DATA</span>
+    <span class="sp"></span>
+    <button class="b" id="addBtn">+ New RFP</button>
+    <button class="b" id="themeBtn">Light / Dark</button>
+  </div>
+  <div class="wrap"><nav id="nav">
+    <button class="on" data-p="dash">Dashboard</button><button data-p="tracker">RFP tracker</button>
+    <button data-p="board">Stage board</button><button data-p="score">Bid / no-bid</button>
+    <button data-p="report">Daily report</button><button data-p="data">Data</button>
+  </nav></div>
+</header>
+
+<main class="wrap">
+  <div class="bar">
+    <div class="seg" id="regions"></div>
+    <span class="sp"></span>
+    <span class="note" id="asof"></span>
+  </div>
+
+  <section class="pane on" id="p-dash">
+    <div class="kpis" id="kpis"></div>
+    <div class="cols">
+      <div class="card"><h2>Live RFPs by due date</h2><div class="tbl" id="dueTable"></div></div>
+      <div>
+        <div class="card"><h2>Pipeline by stage (₹ Cr)</h2><div class="funnel" id="funnel"></div></div>
+        <div class="card"><h2>Needs attention</h2><div id="alerts"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pane" id="p-tracker">
+    <div class="card"><h2>All RFPs — click a header to sort, a row to edit</h2><div class="tbl" id="tracker"></div></div>
+  </section>
+
+  <section class="pane" id="p-board"><div class="card"><h2>Stage board</h2><div class="kan" id="kanban"></div></div></section>
+
+  <section class="pane" id="p-score">
+    <div class="card">
+      <h2>Bid / no-bid scorecard</h2>
+      <div class="bar" style="margin-top:0"><select id="scoreSel"></select></div>
+      <div class="cols">
+        <div id="criteria"></div>
+        <div><div class="score"><div class="ring" id="ring"></div><div><b id="verdict"></b><div class="note" id="verdictWhy"></div></div></div>
+          <p class="note">Weighted, transparent rules — every point is explainable to the director. Adjust the sliders to see the recommendation move.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pane" id="p-report">
+    <div class="card">
+      <h2>Auto-written status report</h2>
+      <div class="bar" style="margin-top:0">
+        <div class="seg" id="repKind"><button class="on" data-k="am">Morning 9:30</button><button data-k="pm">Evening 18:00</button></div>
+        <button class="b" id="copyRep">Copy</button><button class="b" id="mailRep">Open as email draft</button>
+      </div>
+      <pre class="rep" id="rep"></pre>
+    </div>
+  </section>
+
+  <section class="pane" id="p-data">
+    <div class="card"><h2>Data</h2>
+      <p class="note">Everything is stored only in this browser. Export to move it to another machine.</p>
+      <div class="bar"><button class="b" id="exp">Export JSON</button><label class="b" style="cursor:pointer">Import JSON<input type="file" id="imp" accept=".json" hidden></label><button class="b" id="reset">Reset demo data</button></div>
+    </div>
+  </section>
+</main>
+
+<dialog id="dlg"><form method="dialog" id="frm">
+  <h3 style="margin:0 0 12px" id="dlgTitle">RFP</h3>
+  <div class="form">
+    <label class="full">Project<input name="project" required></label>
+    <label>Client<input name="client" required></label>
+    <label>Region<select name="region"></select></label>
+    <label>Package<select name="pkg"><option>C&amp;I</option><option>MEP</option><option>GC</option><option>D&amp;B</option></select></label>
+    <label>Stage<select name="stage"></select></label>
+    <label>Value (₹ Cr)<input name="value" type="number" step="0.01" min="0" required></label>
+    <label>Area (sq ft)<input name="area" type="number" min="0"></label>
+    <label>Due date<input name="due" type="date" required></label>
+    <label>Revision<select name="rev"><option>R0</option><option>R1</option><option>R2</option><option>R3</option><option>R4</option><option>R5</option></select></label>
+    <label>Win probability %<input name="prob" type="number" min="0" max="100"></label>
+    <label>BD owner<input name="owner"></label>
+    <label class="full">Notes<textarea name="notes" rows="2"></textarea></label>
+  </div>
+  <div class="bar" style="justify-content:flex-end;margin-bottom:0">
+    <button class="b" value="cancel" formnovalidate>Cancel</button><button class="b p" value="save" id="saveBtn">Save</button>
+  </div>
+</form></dialog>
+
+<footer class="wrap">Built by <a href="https://yashkasana1996.github.io">Yashwant Kumar Gurjar</a> · <a href="https://github.com/yashkasana1996/bid-pipeline-console">Source</a> · All companies, projects and values are fictional.</footer>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const REGIONS=["Mumbai","Pune","Ahmedabad"];
+const STAGES=[["Received","--s1"],["Estimating","--s2"],["Submitted","--s3"],["Negotiation","--s4"],["Won","--s4"],["Lost","--s5"]];
+const OPEN=["Received","Estimating","Submitted","Negotiation"];
+const KEY="bpc_rfps_v1";
+const today=new Date(); today.setHours(0,0,0,0);
+const iso=x=>x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0");
+const parse=s=>{const [y,m,dd]=s.split("-").map(Number);return new Date(y,m-1,dd)};
+const d=n=>{const x=new Date(today);x.setDate(x.getDate()+n);return iso(x)};
+
+function demo(){
+  const rows=[
+    ["Tower 3 regional HQ fit-out","Northwind Analytics","Mumbai","C&I","Estimating",42.5,61000,2,"R1",55,"Aarav"],
+    ["Data hall MEP upgrade","Contoso Cloud","Pune","MEP","Received",18.2,22000,6,"R0",40,"Meera"],
+    ["Corporate campus Phase 2","Fabrikam Pharma","Ahmedabad","D&B","Submitted",76.0,140000,-3,"R2",35,"Kabir"],
+    ["Flagship retail store","Tailspin Retail","Mumbai","C&I","Negotiation",9.8,12500,-12,"R4",70,"Aarav"],
+    ["GCC delivery centre","Woodgrove Bank","Pune","C&I","Estimating",31.4,48000,4,"R0",50,"Meera"],
+    ["Plant admin block","Litware Auto","Ahmedabad","GC","Received",24.9,35000,9,"R0",30,"Kabir"],
+    ["Co-working floors 7–9","Adventure Works","Mumbai","C&I","Submitted",14.6,27000,-6,"R1",45,"Sana"],
+    ["Hospital OT & ICU MEP","Lucerne Health","Mumbai","MEP","Negotiation",21.3,18000,-15,"R3",60,"Sana"],
+    ["Experience centre","Proseware Motors","Pune","D&B","Won",7.2,9000,-40,"R5",100,"Meera"],
+    ["Warehouse offices","Alpine Logistics","Ahmedabad","GC","Lost",11.0,30000,-30,"R2",0,"Kabir"],
+    ["Bank branch rollout (12)","Woodgrove Bank","Mumbai","C&I","Estimating",16.8,24000,1,"R0",50,"Aarav"],
+    ["R&D lab refurbishment","Fabrikam Pharma","Pune","MEP","Received",12.1,15000,12,"R0",35,"Meera"]
+  ];
+  return rows.map((r,i)=>({id:"R"+(1001+i),project:r[0],client:r[1],region:r[2],pkg:r[3],stage:r[4],value:r[5],area:r[6],due:d(r[7]),rev:r[8],prob:r[9],owner:r[10],notes:""}));
+}
+let rfps; try{rfps=JSON.parse(localStorage.getItem(KEY))||demo()}catch(e){rfps=demo()}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(rfps))}catch(e){}};
+let region="All", sortKey="due", sortDir=1;
+
+const cr=v=>"₹"+v.toFixed(2)+" Cr";
+const days=s=>Math.round((parse(s)-today)/864e5);
+const fmtD=s=>parse(s).toLocaleDateString("en-IN",{day:"2-digit",month:"short"});
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const view=()=>rfps.filter(r=>region==="All"||r.region===region);
+const color=st=>`var(${(STAGES.find(s=>s[0]===st)||[0,"--s1"])[1]})`;
+const badge=st=>`<span class="st" style="background:${color(st)}">${st}</span>`;
+const dueCell=r=>{const n=days(r.due);const c=OPEN.includes(r.stage)?(n<0?"":n<=2?"hot":n<=7?"warm":""):"";
+  const t=!OPEN.includes(r.stage)||r.stage==="Submitted"||r.stage==="Negotiation"?fmtD(r.due):(n<0?`${-n}d overdue`:n===0?"today":`in ${n}d`);
+  return `<span class="due ${c}">${t}</span>`};
+
+/* ---------- regions ---------- */
+$("#regions").innerHTML=["All",...REGIONS].map(r=>`<button data-r="${r}" class="${r===region?"on":""}">${r}</button>`).join("");
+$("#regions").onclick=e=>{const b=e.target.closest("button");if(!b)return;region=b.dataset.r;$$("#regions button").forEach(x=>x.classList.toggle("on",x===b));render()};
+
+/* ---------- render ---------- */
+function render(){
+  const v=view(), open=v.filter(r=>OPEN.includes(r.stage));
+  const pipe=open.reduce((a,r)=>a+r.value,0), wtd=open.reduce((a,r)=>a+r.value*(r.prob||0)/100,0);
+  const week=open.filter(r=>["Received","Estimating"].includes(r.stage)&&days(r.due)>=0&&days(r.due)<=7);
+  const decided=v.filter(r=>r.stage==="Won"||r.stage==="Lost"), won=decided.filter(r=>r.stage==="Won");
+  $("#asof").textContent="As of "+today.toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short",year:"numeric"});
+  $("#kpis").innerHTML=[
+    [open.length,"Live RFPs",`${v.length} tracked in total`],
+    [cr(pipe),"Open pipeline",`${open.length?cr(pipe/open.length):"—"} average`],
+    [cr(wtd),"Weighted pipeline","value × win probability"],
+    [week.length,"Due in 7 days",week.length?cr(week.reduce((a,r)=>a+r.value,0)):"nothing due"],
+    [decided.length?Math.round(won.length/decided.length*100)+"%":"—","Win rate",`${won.length} won of ${decided.length} decided`]
+  ].map(k=>`<div class="kpi"><div class="l">${k[1]}</div><div class="v">${k[0]}</div><div class="s">${k[2]}</div></div>`).join("");
+
+  const due=[...open].sort((a,b)=>a.due.localeCompare(b.due));
+  $("#dueTable").innerHTML=table(due,["#","Project","Client","Stage","Value","Due"],r=>[
+    "",`<b>${esc(r.project)}</b><div class="note">${r.region} · ${r.pkg} · ${r.rev}</div>`,esc(r.client),badge(r.stage),cr(r.value),dueCell(r)],
+    ["","Total","","",cr(pipe),""],[4]);
+
+  const max=Math.max(1,...STAGES.map(s=>v.filter(r=>r.stage===s[0]).reduce((a,r)=>a+r.value,0)));
+  $("#funnel").innerHTML=STAGES.map(([s])=>{const sum=v.filter(r=>r.stage===s).reduce((a,r)=>a+r.value,0),n=v.filter(r=>r.stage===s).length;
+    return `<div class="row"><span>${s} <span class="note">(${n})</span></span><div class="track"><div class="fill" style="width:${sum/max*100}%;background:${color(s)}"></div></div><span style="text-align:right">${sum.toFixed(1)}</span></div>`}).join("");
+
+  const alerts=[];
+  open.forEach(r=>{const n=days(r.due);
+    if(["Received","Estimating"].includes(r.stage)&&n<0)alerts.push(["bad",`<b>${esc(r.project)}</b> is ${-n} day(s) past due and still in ${r.stage}.`]);
+    else if(["Received","Estimating"].includes(r.stage)&&n<=2)alerts.push(["warn",`<b>${esc(r.project)}</b> (${cr(r.value)}) is due ${n===0?"today":"in "+n+" day(s)"}.`]);
+    if(r.stage==="Submitted"&&n<-5)alerts.push(["warn",`<b>${esc(r.project)}</b>: no client response ${-n} days after submission — follow up.`]);
+    if(+r.rev.slice(1)>=3&&r.stage!=="Won")alerts.push(["warn",`<b>${esc(r.project)}</b> is on revision ${r.rev} — check margin erosion.`]);
+  });
+  $("#alerts").innerHTML=alerts.length?alerts.map(a=>`<p style="margin:6px 0;border-left:3px solid var(--${a[0]});padding-left:8px">${a[1]}</p>`).join(""):`<p class="note">Nothing needs attention.</p>`;
+
+  renderTracker(); renderBoard(); renderScoreSel(); renderReport();
+}
+
+function table(rows,head,cells,total,numCols=[]){
+  return `<table><thead><tr>${head.map((h,i)=>`<th class="${numCols.includes(i)?"n":""}">${h}</th>`).join("")}</tr></thead><tbody>${
+    rows.map((r,i)=>`<tr data-id="${r.id}">${cells(r).map((c,j)=>`<td class="${numCols.includes(j)?"n":""}">${j===0&&c===""?i+1:c}</td>`).join("")}</tr>`).join("")}${
+    total?`<tr class="tot">${total.map((c,j)=>`<td class="${numCols.includes(j)?"n":""}">${c}</td>`).join("")}</tr>`:""}</tbody></table>`;
+}
+
+function renderTracker(){
+  const cols=[["id","ID"],["project","Project"],["client","Client"],["region","Region"],["pkg","Pkg"],["stage","Stage"],["rev","Rev"],["value","₹ Cr"],["area","Sq ft"],["rate","₹/sq ft"],["prob","Win %"],["due","Due"],["owner","Owner"]];
+  const rows=view().map(r=>({...r,rate:r.area?r.value*1e7/r.area:0})).sort((a,b)=>(a[sortKey]>b[sortKey]?1:a[sortKey]<b[sortKey]?-1:0)*sortDir);
+  const num=["value","area","rate","prob"];
+  const tv=rows.reduce((a,r)=>a+r.value,0), ta=rows.reduce((a,r)=>a+(r.area||0),0);
+  $("#tracker").innerHTML=`<table><thead><tr>${cols.map(([k,h])=>`<th data-k="${k}" class="${num.includes(k)?"n":""}">${h}${sortKey===k?(sortDir>0?" ▲":" ▼"):""}</th>`).join("")}</tr></thead><tbody>${
+    rows.map(r=>`<tr data-id="${r.id}" style="cursor:pointer"><td>${r.id}</td><td><b>${esc(r.project)}</b></td><td>${esc(r.client)}</td><td>${r.region}</td><td>${r.pkg}</td><td>${badge(r.stage)}</td><td>${r.rev}</td><td class="n">${r.value.toFixed(2)}</td><td class="n">${(r.area||0).toLocaleString("en-IN")}</td><td class="n">${r.rate?Math.round(r.rate).toLocaleString("en-IN"):"—"}</td><td class="n">${r.prob??""}</td><td>${dueCell(r)}</td><td>${esc(r.owner)}</td></tr>`).join("")
+  }<tr class="tot"><td></td><td>Total (${rows.length})</td><td></td><td></td><td></td><td></td><td></td><td class="n">${tv.toFixed(2)}</td><td class="n">${ta.toLocaleString("en-IN")}</td><td class="n">${ta?Math.round(tv*1e7/ta).toLocaleString("en-IN"):"—"}</td><td></td><td></td><td></td></tr></tbody></table>`;
+}
+$("#tracker").onclick=e=>{const th=e.target.closest("th");if(th){const k=th.dataset.k;sortDir=sortKey===k?-sortDir:1;sortKey=k;renderTracker();return}
+  const tr=e.target.closest("tr[data-id]");if(tr)openDlg(tr.dataset.id)};
+$("#dueTable").onclick=e=>{const tr=e.target.closest("tr[data-id]");if(tr)openDlg(tr.dataset.id)};
+
+function renderBoard(){
+  $("#kanban").innerHTML=[...OPEN,"Won"].map(s=>{const items=view().filter(r=>r.stage===s);
+    return `<div class="col" data-s="${s}"><h3><span>${s}</span><span class="note">${items.length} · ${items.reduce((a,r)=>a+r.value,0).toFixed(1)} Cr</span></h3>${
+      items.map(r=>`<div class="tile" draggable="true" data-id="${r.id}" style="border-left-color:${color(s)}"><b>${esc(r.project)}</b><span class="m">${esc(r.client)} · ${r.region}</span><div>${cr(r.value)} · ${dueCell(r)}</div></div>`).join("")}</div>`}).join("");
+}
+$("#kanban").addEventListener("dragstart",e=>{const t=e.target.closest(".tile");if(t)e.dataTransfer.setData("text",t.dataset.id)});
+$("#kanban").addEventListener("dragover",e=>{if(e.target.closest(".col"))e.preventDefault()});
+$("#kanban").addEventListener("drop",e=>{const c=e.target.closest(".col");if(!c)return;e.preventDefault();const r=rfps.find(x=>x.id===e.dataTransfer.getData("text"));if(r){r.stage=c.dataset.s;if(r.stage==="Won")r.prob=100;save();render()}});
+$("#kanban").addEventListener("click",e=>{const t=e.target.closest(".tile");if(t)openDlg(t.dataset.id)});
+
+/* ---------- bid / no-bid ---------- */
+const CRIT=[["Fit with our core packages",20],["Client relationship / history",15],["Margin potential",20],["Time to prepare the bid",15],["Project size vs capacity",15],["Payment & contract terms risk",15]];
+const scores={};
+function renderScoreSel(){const s=$("#scoreSel"),cur=s.value;s.innerHTML=rfps.filter(r=>OPEN.includes(r.stage)).map(r=>`<option value="${r.id}">${esc(r.project)} — ${esc(r.client)}</option>`).join("");if(cur)s.value=cur;renderScore()}
+function defaults(r){const n=days(r.due);return [r.pkg==="C&I"||r.pkg==="D&B"?4:3,rfps.some(x=>x.client===r.client&&x.stage==="Won")?5:rfps.filter(x=>x.client===r.client).length>1?4:2,
+  r.area&&r.value*1e7/r.area>5000?4:3,n>=10?5:n>=5?4:n>=2?2:1,r.value>60?2:r.value>30?3:4,3]}
+function renderScore(){const id=$("#scoreSel").value;const r=rfps.find(x=>x.id===id);if(!r){$("#criteria").innerHTML="<p class='note'>No open RFPs.</p>";return}
+  scores[id]=scores[id]||defaults(r);const sc=scores[id];
+  $("#criteria").innerHTML=CRIT.map((c,i)=>`<div class="crit"><span>${c[0]} <span class="note">(${c[1]}%)</span></span><input type="range" min="1" max="5" value="${sc[i]}" data-i="${i}"><b>${sc[i]}/5</b></div>`).join("");
+  const total=Math.round(CRIT.reduce((a,c,i)=>a+c[1]*sc[i]/5,0));
+  const [v,col,why]=total>=70?["BID","--ok","Strong fit — commit the estimating team."]:total>=55?["CONDITIONAL BID","--warn","Bid only if the weakest criteria can be de-risked (clarifications, terms, partner)."]:["NO-BID","--bad","Decline politely and protect estimating capacity for better-fit tenders."];
+  const weak=CRIT.map((c,i)=>[c[0],sc[i]]).filter(x=>x[1]<=2).map(x=>x[0]);
+  $("#ring").style.background=`conic-gradient(var(${col}) ${total*3.6}deg,var(--bg) 0)`;$("#ring").innerHTML=`<span style="background:var(--card);width:64px;height:64px;border-radius:50%;display:grid;place-items:center">${total}</span>`;
+  $("#verdict").textContent=v;$("#verdict").style.color=`var(${col})`;$("#verdictWhy").textContent=why+(weak.length?" Weak spots: "+weak.join(", ")+".":"");
+}
+$("#scoreSel").onchange=renderScore;
+$("#criteria").oninput=e=>{const i=e.target.dataset.i;if(i==null)return;scores[$("#scoreSel").value][i]=+e.target.value;renderScore()};
+
+/* ---------- daily report ---------- */
+let repKind="am";
+function renderReport(){
+  const v=view(),open=v.filter(r=>OPEN.includes(r.stage)),L=[];
+  const dt=today.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  L.push(`${repKind==="am"?"MORNING":"EVENING"} PIPELINE REPORT — ${region==="All"?"All regions":region}`,dt,"");
+  L.push(`Open pipeline: ${cr(open.reduce((a,r)=>a+r.value,0))} across ${open.length} RFPs (weighted ${cr(open.reduce((a,r)=>a+r.value*(r.prob||0)/100,0))}).`,"");
+  const due=open.filter(r=>["Received","Estimating"].includes(r.stage)).sort((a,b)=>a.due.localeCompare(b.due));
+  L.push(repKind==="am"?"DUE FOR SUBMISSION (next 7 days)":"SUBMISSION STATUS");
+  const lst=due.filter(r=>days(r.due)<=7);
+  (lst.length?lst:[{project:"None",value:0,due:d(0)}]).forEach((r,i)=>r.project==="None"?L.push("  – none"):L.push(`  ${i+1}. ${r.project} — ${r.client} (${r.region}) · ${cr(r.value)} · ${r.rev} · due ${fmtD(r.due)}${days(r.due)<0?" · OVERDUE":""} · ${r.stage}`));
+  L.push("","BY REGION");REGIONS.filter(x=>region==="All"||x===region).forEach(g=>{const o=open.filter(r=>r.region===g);L.push(`  ${g}: ${o.length} live · ${cr(o.reduce((a,r)=>a+r.value,0))}`)});
+  L.push("","IN NEGOTIATION");open.filter(r=>r.stage==="Negotiation").forEach(r=>L.push(`  • ${r.project} — ${cr(r.value)} · ${r.rev} · ${r.prob}% likely`));
+  const sub=open.filter(r=>r.stage==="Submitted"&&days(r.due)<-5);
+  if(sub.length){L.push("","FOLLOW-UPS NEEDED");sub.forEach(r=>L.push(`  • ${r.project}: submitted ${-days(r.due)} days ago, no response`))}
+  L.push("",repKind==="am"?"Priorities today: close the items due within 48 hours first; flag any revision at R3 or beyond for margin review.":"Plan for tomorrow: confirm submission owners for every RFP due this week.");
+  $("#rep").textContent=L.join("\n");
+}
+$("#repKind").onclick=e=>{const b=e.target.closest("button");if(!b)return;repKind=b.dataset.k;$$("#repKind button").forEach(x=>x.classList.toggle("on",x===b));renderReport()};
+$("#copyRep").onclick=()=>navigator.clipboard?.writeText($("#rep").textContent).then(()=>{$("#copyRep").textContent="Copied";setTimeout(()=>$("#copyRep").textContent="Copy",1200)});
+$("#mailRep").onclick=()=>{const t=$("#rep").textContent;location.href="mailto:?subject="+encodeURIComponent(t.split("\n")[0])+"&body="+encodeURIComponent(t)};
+
+/* ---------- dialog ---------- */
+const frm=$("#frm");
+frm.region.innerHTML=REGIONS.map(r=>`<option>${r}</option>`).join("");
+frm.stage.innerHTML=STAGES.map(s=>`<option>${s[0]}</option>`).join("");
+let editing=null;
+function openDlg(id){editing=id;const r=rfps.find(x=>x.id===id)||{region:REGIONS[0],pkg:"C&I",stage:"Received",rev:"R0",prob:40,due:d(7)};
+  $("#dlgTitle").textContent=id?`Edit ${id}`:"New RFP";
+  ["project","client","region","pkg","stage","value","area","due","rev","prob","owner","notes"].forEach(k=>frm[k].value=r[k]??"");$("#dlg").showModal()}
+$("#addBtn").onclick=()=>openDlg(null);
+$("#dlg").addEventListener("close",()=>{if($("#dlg").returnValue!=="save")return;const f=Object.fromEntries(new FormData(frm));
+  f.value=+f.value;f.area=+f.area||0;f.prob=+f.prob||0;
+  if(editing){Object.assign(rfps.find(x=>x.id===editing),f)}else{f.id="R"+(1001+rfps.length+Math.floor(Math.random()*90));rfps.push(f)}
+  save();render()});
+
+/* ---------- data ---------- */
+$("#exp").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(rfps,null,1)],{type:"application/json"}));a.download="rfp-pipeline.json";a.click()};
+$("#imp").onchange=async e=>{try{const x=JSON.parse(await e.target.files[0].text());if(Array.isArray(x)){rfps=x;save();render()}}catch(err){alert("Not a valid export file")}};
+$("#reset").onclick=()=>{rfps=demo();save();render()};
+
+/* ---------- nav / theme ---------- */
+$("#nav").onclick=e=>{const b=e.target.closest("button");if(!b)return;$$("#nav button").forEach(x=>x.classList.toggle("on",x===b));$$(".pane").forEach(p=>p.classList.toggle("on",p.id==="p-"+b.dataset.p))};
+$("#themeBtn").onclick=()=>{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=dark?"light":"dark"};
+render();
+</script>
+</body>
+</html>
