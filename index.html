@@ -99,7 +99,7 @@ footer a{color:var(--navy)}
   <section class="pane on" id="p-dash">
     <div class="kpis" id="kpis"></div>
     <div class="cols">
-      <div class="card"><h2>Live RFPs by due date</h2><div class="tbl" id="dueTable"></div></div>
+      <div class="card"><h2>Live RFPs — in progress by deadline, then awaiting decision</h2><div class="tbl" id="dueTable"></div></div>
       <div>
         <div class="card"><h2>Pipeline by stage (₹ Cr)</h2><div class="funnel" id="funnel"></div></div>
         <div class="card"><h2>Needs attention</h2><div id="alerts"></div></div>
@@ -230,7 +230,8 @@ function render(){
     [decided.length?Math.round(won.length/decided.length*100)+"%":"—","Win rate",`${won.length} won of ${decided.length} decided`]
   ].map(k=>`<div class="kpi"><div class="l">${k[1]}</div><div class="v">${k[0]}</div><div class="s">${k[2]}</div></div>`).join("");
 
-  const due=[...open].sort((a,b)=>a.due.localeCompare(b.due));
+  const working=r=>["Received","Estimating"].includes(r.stage)?0:1;
+  const due=[...open].sort((a,b)=>working(a)-working(b)||a.due.localeCompare(b.due));
   $("#dueTable").innerHTML=table(due,["#","Project","Client","Stage","Value","Due"],r=>[
     "",`<b>${esc(r.project)}</b><div class="note">${r.region} · ${r.pkg} · ${r.rev}</div>`,esc(r.client),badge(r.stage),cr(r.value),dueCell(r)],
     ["","Total","","",cr(pipe),""],[4]);
